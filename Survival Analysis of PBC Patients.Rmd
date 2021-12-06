@@ -1,0 +1,462 @@
+---
+title: "Survival Analysis with the Primary Biliary Cholangitis (PBC) Dataset"
+author: "Lucas Mendicino"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## General Question: In this dataset from a randomized trial, what baseline factors predict mortality?
+
+
+```{r, include = FALSE}
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(psych)
+library(survival)
+library(tableone)
+library(pastecs)
+library(glmnet)
+library(survminer)
+library(survMisc)
+
+library(gtsummary)
+theme_gtsummary_journal(journal = "jama")
+library(caret)
+
+```
+## Overview
+
+In this project, I use the Primary Biliary Cirhosis (PBC) data set from the Mayo Clinic trial conducted between the years 1974 to 1984.  PBC is an autoimmune disease leading to destruction of the small bile ducts in the liver. I first do exploratory data analysis, providing summary statistics of the baseline factors and an assessment of normality with density plots and normality statistics. I assess log transformations of numerical factors here. Next, I employ a standard Cox regression model for survival with each factor as a predictor. I then use LASSO (Least Absolute Shrinkage and Selection Operator) to identify a parsimonious set of variables to predict survival. I do this using the data set as it is, then using log transformed factors. I propose the model I believe best predicts survival. Then, I assess non-linear associations between the factors and the time to event outcome by inspecting the functional form of continuous variables against martingale residuals and then splines to assess nonlinear terms. Lastly, I provide survival curves of the models and a summary about the results of my analysis.
+
+
+
+## 1.) Assessment of the normality of each of the candidate variables and summary statistics.
+
+Let's load the data from the survival package.
+```{r}
+data(pbc, package = 'survival')
+```
+
+
+Let's look at the variables in the data set
+```{r}
+str(pbc)
+```
+The PBC data set has 418 subjects, 312 of which were in the randomized trial, and an additional 106 subjects not in the trial.
+There are 17 candidate variables (10 numeric, 7 categorical):
+
+- Numeric: age, bili, chol, albumin, cooper, alk.phos, ast, trig, platelet, protime
+- Categorical: sex, trt, ascites, hepato, spiders, edema, stage
+
+Let's get summary statistics of the variables:
+```{r}
+pbc2 <- data.frame(pbc)
+
+pbc2 <- pbc2 %>%
+    mutate(status = factor(status, levels = c(0,1,2), labels = c("Censored", "Transplant", "Dead")),
+           ascites = factor(ascites, levels = c(0,1), labels = c("Absent","Present")),
+           edema = factor(edema, levels = c(0, 0.5, 1), labels = c("No edema","Untreated or successfully treated","edema despite diuretic therapy")),
+           hepato = factor(hepato, levels = c(0,1), labels = c("Absent","Present")),
+           stage = factor(stage),
+           trt = factor(trt, levels = c(1,2), labels = c("D-penicillmain", "Placebo"))) %>%
+  rename("Endpoint Status" = status, "Treatment" = trt, "Age in years" = age, "Sex" = sex, 
+         "Ascites" = ascites, "Hepatomegaly" = hepato, "Spiders Angioma" = spiders,
+          "Edema" = edema, "Serum Bilirubin mg/dl" = bili, "Serum Cholesterol mg/dl" = chol, 
+          "Serum Albumin g/dl" = albumin, "Urine Copper ug/day" = copper,
+          "Alkaline Phosphotase U/liter" = alk.phos, "Triglicerides mg/dl" = trig, 
+          "Platelet Count" = platelet, "Blood Clotting Time in seconds" = protime, "Histoligic Stage" = stage,
+          "Aspartate Aminotransferase U/ml" = ast) %>%
+  select(-id)
+
+print(CreateTableOne(data = pbc2), nonnormal = c("Serum Bilirubin mg/dl", 
+                              "Serum Cholesterol mg/dl", "Serum Albumin g/dl", "Urine Copper ug/day", 
+                              "Alkaline Phosphotase U/liter", "Aspartate Aminotransferase U/ml",
+                              "Triglicerides mg/dl", "Platelet Count", "Blood Clotting Time in seconds"))
+```
+
+```{r}
+pbc2 %>% select(-time) %>% 
+  tbl_summary(statistic = list(all_continuous() ~ "{median} ({p25}, {p75})",
+                     all_categorical() ~ "{n} ({p}%)"),
+                    digits = all_continuous() ~ 2,)
+```
+
+
+
+Now, let's inspect the distribution shape of the 10 numerical variables using density plots.
+```{r, warning = FALSE}
+nums <- pbc %>% select(bili, chol, albumin, copper, alk.phos, ast,
+                               trig, platelet, protime, age) 
+nums <- do.call(bind_cols, nums)
+
+p1 <- ggplot(nums) +
+  geom_density(aes(x = bili)) 
+p2 <- ggplot(nums) +
+  geom_density(aes(x = chol)) 
+p3 <- ggplot(nums) +
+  geom_density(aes(x = albumin))
+p4 <- ggplot(nums) +
+  geom_density(aes(x = copper)) 
+p5 <- ggplot(nums) +
+  geom_density(aes(x = alk.phos)) 
+p6 <- ggplot(nums) +
+  geom_density(aes(x = ast)) 
+p7 <- ggplot(nums) +
+  geom_density(aes(x = trig)) 
+p8 <- ggplot(nums) +
+  geom_density(aes(x = platelet))
+p9 <- ggplot(nums) +
+  geom_density(aes(x = protime)) 
+p10 <- ggplot(nums) +
+  geom_density(aes(x = age)) 
+gridExtra::grid.arrange(p1, p2, p3, p4, p5,
+                        p6, p7, p8, p9, p10,
+                        nrow = 5)
+
+```
+
+The density plots show a significant right skew for bili, chol, copper, alk.phos, ast, trig, and protime. Platelet shows a slight left skew and albumin exhibits a slight right skew. Age looks fairly normal.
+
+Let's get normality test statistics for the numerical variables:
+```{r}
+options(scipen = 999)
+round(stat.desc(nums, basic = FALSE, desc = FALSE, norm = TRUE),2)
+```
+The skewness statistic is greater than 1 for bili, chol, copper, alk.phos, ast, trig, and protime, revealing  substantially skewed dsitributions. Albumin, platelet, and age were all less than one.
+Similarly, the kurtosis statistic if greater than +1 for bili, chol, copper, alk.phos, ast, trig, and protime. This means their distributions are too peaked. Albumin, platelet, and age were all less than one. The Shapiro-Wilk test is provided as well, but is most appropriate for small (n<50) samples. It shows each numerical variable deviates significantly from a normal distribution.
+
+Let's add a log transformation to see if this helps normalize them. I will leave age out and will consider it a linear predictor.
+```{r}
+nums <- nums %>% mutate(lbili = log(bili))
+nums <- nums %>% mutate(lchol = log(chol))
+nums <- nums %>% mutate(lalk.phos = log(alk.phos))
+nums <- nums %>% mutate(lcopper = log(copper))
+nums <- nums %>% mutate(last = log(ast))
+nums <- nums %>% mutate(lprotime = log(protime))
+nums <- nums %>% mutate(ltrig = log(trig))
+nums <- nums %>% mutate(lplatelet = log(platelet))
+
+nums1 <- nums %>% select(lbili, lchol, lalk.phos, lcopper, last,
+                         lprotime, ltrig, albumin, lplatelet, age)
+
+options(scipen = 999)
+round(stat.desc(nums1, basic = FALSE, desc = FALSE, norm = TRUE),2)
+```
+The log transform helped to normalize bili, alk.phos, copper, ast, and trig based on skewness and kurtosis. The skewness and kurtosis statistics did decrease for chol and protime. Albumin and age will be left untransformed. 
+
+Let's compare our density plots for the untransformed and log transformed variables.
+```{r, warning = FALSE}
+p1 <- ggplot(nums) +
+  geom_density(aes(x = bili)) 
+p1l <- ggplot(nums) +
+  geom_density(aes(x = lbili))
+p2 <- ggplot(nums) +
+  geom_density(aes(x = chol))
+p2l <- ggplot(nums) +
+  geom_density(aes(x = lchol)) 
+p3 <- ggplot(nums) +
+  geom_density(aes(x = albumin))
+p4 <- ggplot(nums) +
+  geom_density(aes(x = copper)) 
+p4l <- ggplot(nums) +
+  geom_density(aes(x = lcopper)) 
+p5 <- ggplot(nums) +
+  geom_density(aes(x = alk.phos)) 
+p5l <- ggplot(nums) +
+  geom_density(aes(x = lalk.phos)) 
+p6 <- ggplot(nums) +
+  geom_density(aes(x = ast)) 
+p6l <- ggplot(nums) +
+  geom_density(aes(x = last)) 
+p7 <- ggplot(nums) +
+  geom_density(aes(x = trig))
+p7l <- ggplot(nums) +
+  geom_density(aes(x = ltrig))
+p8 <- ggplot(nums) +
+  geom_density(aes(x = platelet))
+p8l <- ggplot(nums) +
+  geom_density(aes(x = lplatelet))
+p9 <- ggplot(nums) +
+  geom_density(aes(x = protime))
+p9l <- ggplot(nums) +
+  geom_density(aes(x = lprotime)) 
+p10 <- ggplot(nums) +
+  geom_density(aes(x = age)) 
+gridExtra::grid.arrange(p1, p1l, p2, p2l, p3, p4, p4l, p5,
+                        p5l, p6, p6l, p7, p7l, p8, p8l, p9, p9l, p10,
+                        nrow = 5)
+
+```
+
+```{r}
+# pbc data set with 8 log transformed terms
+pbc1 <- data.frame(pbc)
+
+pbc1 <- pbc1 %>% mutate(lbili = log(bili))
+pbc1 <- pbc1 %>% mutate(lchol = log(chol))
+pbc1 <- pbc1 %>% mutate(lalk.phos = log(alk.phos))
+pbc1 <- pbc1 %>% mutate(lcopper = log(copper))
+pbc1 <- pbc1 %>% mutate(last = log(ast))
+pbc1 <- pbc1 %>% mutate(lprotime = log(protime))
+pbc1 <- pbc1 %>% mutate(ltrig = log(trig))
+pbc1 <- pbc1 %>% mutate(lplatelet = log(platelet))
+
+
+pbc1 <- pbc1 %>% select(id, time, status, trt, age, sex, ascites, hepato, 
+                    spiders, edema, lbili, lchol, albumin, lcopper, lalk.phos, 
+                    last, ltrig, lplatelet, lprotime, stage)
+```
+
+It is reasonable to expect biological measurements will be skewed and not from a normal distribution. The density plots and normality statistics quantified this expectation. A log transformation helped to normalize most of these factors.
+
+## 2.) Standard Cox Regression Model and LASSO Regression to identify a parsimonious set of variables predictive of survival
+
+I will approach this two ways and compare the results. The first approach will be done on the PBC data set with no transformation on the factors. Second, I will add log transformations to factors based on the normality tests and density plots from part 1. The data that will be used is the set of complete observations from the trial data with 276 observations.
+
+
+### Approach 1: No transformation
+
+Let's create the data set of untransformed factors and drop any observation with NA values.
+```{r}
+pbc_model1 <- data.frame(pbc)
+pbc_model1 <- pbc_model1[complete.cases(pbc_model1), ] %>% select(-id)
+str(pbc_model1)
+```
+
+
+
+Standard Cox regression model using all the variables as predictors.
+```{r}
+standard_cox1 <- coxph(Surv(time, status == 2) ~ ., data = pbc_model1)
+summary(standard_cox1)
+```
+
+Let's apply LASSO Regression to identify a parsimonious set of variables to predict survival.
+```{r}
+x1 <- model.matrix(~trt + age + sex + ascites + hepato + spiders + edema + 
+                     bili + chol + albumin + copper + alk.phos + ast + 
+                     trig + platelet + protime + stage, data = pbc_model1)
+
+y1 <- Surv(pbc_model1$time, pbc_model1$status == 2)
+
+lasso_cox1 <- glmnet(x1,y1, family = "cox", type.measure = "C", standardize = TRUE)
+plot(lasso_cox1, label = TRUE)
+```
+
+Let's use cross-validation to find optimal lambda and coefficients of factors.
+```{r}
+set.seed(42)
+cv.fit1 <- cv.glmnet(x1,y1, family = "cox", type.measure = "C", alpha = 1, nfolds = 10, keep = TRUE)
+print(cv.fit1)
+coef(cv.fit1, s = "lambda.min")
+```
+(REWRITE)
+The results from LASSO regression give a model with 9 factors: age, ascites, edema, bili, albumin, copper, alk.phos, ast, protime, and stage. LASSO successfully shrunk 8 factors to zero.
+
+
+Now, let's input the factors found through LASSO and create the parsimonious model.
+```{r}
+parsimonious_cox1 <- coxph(Surv(time,status == 2) ~ age  + sex + ascites + edema + bili  + chol +
+                         albumin + copper + ast + protime + stage, data = pbc_model1)
+summary(parsimonious_cox1)
+```
+
+
+
+
+### Approach 2: Log transformations
+Let's create a data set with log transformation on bili, chol, copper, alk.phos, ast, trig, platelet, and protime. 
+```{r}
+pbc_model2 <- data.frame(pbc1) %>% select(-id) 
+pbc_model2 <- pbc_model2[complete.cases(pbc_model2), ]
+str(pbc_model2)
+```
+
+
+Let's create a standard cox regression model using all the variables as predictors.
+```{r}
+standard_cox2 <- coxph(Surv(time, status == 2) ~ ., data = pbc_model2)
+summary(standard_cox2)
+```
+
+Let's employ LASSO Regression to identify the parsimonious set of variables to predict survival.
+```{r}
+x2 <- model.matrix(~trt + age + sex + ascites + hepato + spiders + edema + lbili + 
+                     lchol + albumin + lcopper + lalk.phos + last + ltrig +
+                     lplatelet + lprotime + stage, data = pbc_model2)
+
+y2 <- Surv(pbc_model2$time, pbc_model2$status == 2)
+
+lasso_cox2 <- glmnet(x2,y2, family = "cox", type.measure = "C", standardize = TRUE)
+plot(lasso_cox2, label = TRUE)
+```
+
+Let's use cross-validation to find optimal lambda and coefficients of factors.
+```{r}
+set.seed(42)
+cv.fit2 <- cv.glmnet(x2,y2, family = "cox", type.measure = "C", alpha = 1, nfolds = 10, keep = TRUE)
+print(cv.fit2)
+coef(cv.fit2, s = "lambda.min")
+```
+
+(REWRITE)
+LASSO regression resulted in 8 non-zero factors: age, ascites, edema, lbili, albumin, lcopper, lprotime, and stage.
+
+Now, let's input the factors  found through LASSO and create the parsimonious model.
+```{r}
+parsimonious_cox2 <- coxph(Surv(time,status == 2) ~ age + sex + ascites + edema + lbili  
+                           + albumin + lcopper + last + lprotime + stage, data = pbc_model2)
+
+summary(parsimonious_cox2)
+```
+
+(REWRITE)
+The two approaches, using untransformed and log transformed numerical factors, resulted in two different parsimonious sets of variables. The first set included one more variable (ast) and shared the rest of the factors with the second set. 
+
+Let's compare AIC's (Akaike Information criterion), BIC's (Bayesian Information criterion), and concorance for the four models. The AIC is an estimation of prediction error and can be used to compare relative quality between models for a given data set. Similarly, BIC is based on the likelihood function and allows us to compare models, but tends to favor models with less parameters becuase it penalizes more than AIC. The model with the lowest AIC and BIC is preferred. Concordance is a popular statistic for Cox models used to measure model discrimination in survival analysis using time data. It's values range from [0,1], and is compared to AUC of the ROC in logistic regression.
+```{r}
+s1_model <- data.frame("Standard Model, untransformed", AIC(standard_cox1), 
+                       BIC(standard_cox1), 0.849)
+names(s1_model) <- c("Model", "AIC", "BIC", "Concordance")
+
+s2_model <- data.frame("Standard Model, transformed", AIC(standard_cox2), 
+                       BIC(standard_cox2), 0.859)
+names(s2_model) <- c("Model", "AIC", "BIC", "Concordance")
+
+p1_model <- data.frame("Parsimonious Model, untransformed", AIC(parsimonious_cox1), 
+                       BIC(parsimonious_cox1), 0.849)
+names(p1_model) <- c("Model", "AIC", "BIC", "Concordance")
+
+p2_model <- data.frame("Parsimonious Model, transformed", AIC(parsimonious_cox2), 
+                       BIC(parsimonious_cox2), 0.857)
+names(p2_model) <- c("Model", "AIC", "BIC", "Concordance")
+
+model_diagnostics <- rbind(s1_model, p1_model, s2_model, p2_model)
+model_diagnostics
+```
+
+(REWRITE)
+In the untransformed approach, AIC, BIC, and concordance all decrease from the standard to parsimonious model. This occurs in the transformed approach too. Between the two approaches, the transformed model exhibits the lowest AIC and BIC, while retaining a concordance greater than the standard untransformed model. 
+
+A parsimonious model is a simple model with great explanatory predictive power. It is less likely to overfit the data set because it has as few predictors as possible. It can be seen from the above analyses that two parsimonious models were produced to predict survival for patients in the PBC clinical trial. I believe the best model to predict survival is the model using the set of factors found using LASSO in the log transform approach, resulting in eight baseline factors (age, ascites, edema, lbili, albumin, lcopper, lprotime, stage) predicting survival. This proposition is justified by AIC, BIC, and concordance statistics. This parsimonious model retains significant information after the removal of 9 baseline factors.
+
+
+## 3.) Assessment of Nonlinear relationships with survival outcome
+Let's approach this two ways: 
+
+1. Look at the functional shape of our untransformed and transformed variables using ggcoxfunctional. This will allow us to visually detect nonlinearity by looking at the pattern of martingale residuals for each factor.
+2. Add splines to factors and assess linear and nonlinear terms. If nonlinear, take log of factor and run again.
+
+The first approach can inform us of what to do in the second approach, and the two approaches will validate each other.
+
+### Functional shape
+```{r}
+pbc_test1 <- data.frame(pbc)
+pbc_test1 <- pbc_test1[complete.cases(pbc_test1), ]
+pbc_test1 <- pbc_test1 %>% select(-id)
+
+shape_test_cox_full_log <- coxph(Surv(time, status == 2) ~  age + bili + log(bili) + 
+                      chol + log(chol) + albumin + log(albumin) + copper + log(copper) +
+                      alk.phos + log(alk.phos) + ast + log(ast) + trig + log(trig) + platelet + 
+                      log(platelet) + protime + log(protime) , data = pbc_test1)
+
+
+ggcoxfunctional(shape_test_cox_full_log, pbc_test1, ggtheme = theme_bw())
+```
+Age, albumin, and trig look linear. We see evidence of nonlinearity for bili, chol, copper, alk.phos, ast, platelet, and protime. The log transform for bili produced a curve easier to adjust for. The rest of the factors seem unaffected by the transformation. 
+
+### Splines
+
+Let's add splines to all factors to check for significant nonlinear terms in both untransformed and transformed models.
+```{r}
+shape_test_cox_full_pspline <- coxph(Surv(time, status == 2) ~  age + pspline(bili)  + 
+                          pspline(chol)  + pspline(albumin) + pspline(copper) +
+                          pspline(alk.phos) + pspline(ast) +  pspline(trig) + pspline(platelet) + 
+                          pspline(protime)  , data = pbc_test1)
+                          
+(shape_test_cox_full_pspline)
+```
+There are significant nonlinear terms for bili, copper, and alk.phos. 
+
+Let's add the splines to the log transformed terms to see if nonlinear terms become insignificant for bili, copper, and alk.phos
+```{r}
+
+shape_test_cox_full_log_pspline <- coxph(Surv(time, status == 2) ~  age +  pspline(log(bili)) + chol + albumin +
+                          pspline(log(copper))  + pspline(log(alk.phos)) + ast + trig + 
+                          platelet +  protime , data = pbc_test1)
+                          
+(shape_test_cox_full_log_pspline)
+```
+There are no significant nonlinear terms for bili, copper, or alk.phos. It seems the log transformation for these three variables is justified.
+The above visual and quantitative analysis of nonlinearity did not result in any significant nonlinear associations with the time to event outcome.
+
+## 4.) Create a figure that you feel adequately displays results of the analysis
+
+
+Compare survival curves of the models:
+
+```{r}
+standard_cox1_plot <- survfit(standard_cox1)
+standard1 <- rep("Standard Cox, untransformed", length(standard_cox1_plot$time))
+standard_df1 <- data.frame(standard_cox1_plot$time, standard_cox1_plot$surv, standard1)
+names(standard_df1) <- c("Time", "Survival", "Model")
+
+parsimonious_cox1_plot <- survfit(parsimonious_cox1)
+pars1 <- rep("Parsimonious Cox, untransformed", length(parsimonious_cox1_plot$time))
+pars_df1 <- data.frame(parsimonious_cox1_plot$time, parsimonious_cox1_plot$surv, pars1)
+names(pars_df1) <- c("Time", "Survival", "Model")
+
+plot_combo_df_1 <- rbind(standard_df1, pars_df1)
+plot_combo1 <- ggplot(plot_combo_df_1, aes(x = Time, y = Survival, color = Model))
+plot_combo1 + geom_line() + ggtitle("Comparison of Survival Curves for Untransformed Factors Model")
+
+
+standard_cox2_plot <- survfit(standard_cox2)
+standard2 <- rep("Standard Cox, transformed", length(standard_cox2_plot$time))
+standard_df2 <- data.frame(standard_cox2_plot$time, standard_cox2_plot$surv, standard2)
+names(standard_df2) <- c("Time", "Survival", "Model")
+
+parsimonious_cox2_plot <- survfit(parsimonious_cox2)
+pars2 <- rep("Parsimonious Cox, transformed", length(parsimonious_cox2_plot$time))
+pars_df2 <- data.frame(parsimonious_cox2_plot$time, parsimonious_cox2_plot$surv, pars2)
+names(pars_df2) <- c("Time", "Survival", "Model")
+
+
+plot_combo_df_2 <- rbind(standard_df2, pars_df2)
+plot_combo2 <- ggplot(plot_combo_df_2, aes(x = Time, y = Survival, color = Model))
+plot_combo2 + geom_line() + ggtitle("Comparison of Survival Curves for Transformed Factors Model")
+
+
+plot_combo_df <- rbind(standard_df1, standard_df2, pars_df1, pars_df2)
+
+plot_combo <- ggplot(plot_combo_df, aes(x = Time, y = Survival, color = Model))
+plot_combo + geom_line() + ggtitle("Comparison of Survival Curves for all Models")
+
+```
+
+The objective of this project was to analyze which baseline factors predict survival. Along the way, two parsimonious models were created using LASSO regression, providing a simple, yet powerful model going from 17 factors to 8. It is reasonable to believe the full, standard model is best to use when predicting survival and that information can be lost when you drop predictors. However, the results of the analyses presented here shows otherwise. The three above plots of survival curves show nearly equal curves for each approach. Furthermore, a Likelihood Ratio Test can be applied to our parsimonious models to assess their fit compared to the standard models.
+```{r}
+anova(standard_cox1, parsimonious_cox1, test = "LRT")
+anova(standard_cox2, parsimonious_cox2, test = "LRT")
+anova(parsimonious_cox1, parsimonious_cox2, test = "LRT")
+```
+The LRT test provides evidence that the standard and parsimonious models in the first approach, using untransformed terms, are not significantly different. They fit the data equally well even though 8 baseline factors were removed. A similar result is found for the models in the second approach using log transformed terms; the standard and parsimonious fit the data equally well. Nine baseline factors were removed here and it is significant that enough information was retained with the parsimonious model. The plots of survival curves adequately displays this result. Furthermore, it is important to note that the LRT test between the parsimonious models showed that the model with log transformed terms fit the data significantly better than the untransformed terms model, providing more evidence for my claim in part 2.
+
+
+## Conclusions
+
+The PBC data set provided survival data on 17 baseline factors for patients in a Mayo Clinic trial. A Cox regression model was employed on 276 patients with complete data to explore which baseline factors best predict survival. Two sets of data were used in the modeling, the original data set and 8 log transformations on numerical variables exhibiting nonnormal distributions. The two approaches resulted in two different parsimonious models with 9 baseline factors in the original data set and 8 in the transformed data set. The parsimonious model with 8 baseline factors was the best model to predict survival. An assessment of nonlinear associations between the variables and the time to event outcome revealed little evidence of nonlinearity and confirmed the need for log transformations. Finally, a comparison of the survival curves of our four models showed near equal fits in the two approaches, revealing that the parsimonious models were able to fit the data equally as well as the standard models. The parsimonious model with log transformed terms fit the data significantly better than the parsimonious model with the original data set. The results of this analysis reveal the benefits of model parsimony in the prediction of survival for patients in the PBC clinical trial. Removal of baseline factors with poor predictive ability can allow clinicians to have better prognostic abilities by focusing on a smaller set factors of importance to survival. 
+
+
+
+
+
+
+
+
+
+
