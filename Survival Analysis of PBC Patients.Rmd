@@ -250,19 +250,31 @@ plot(lasso_cox1, label = TRUE)
 Let's use cross-validation to find optimal lambda and coefficients of factors.
 ```{r}
 set.seed(42)
-cv.fit1 <- cv.glmnet(x1,y1, family = "cox", type.measure = "C", alpha = 1, nfolds = 10, keep = TRUE)
+cv.fit1 <- cv.glmnet(x1, y1, family = "cox", type.measure = "C", alpha = 1, nfolds = 10, keep = TRUE)
 print(cv.fit1)
 coef(cv.fit1, s = "lambda.min")
+coef(cv.fit1, s = "lambda.1se")
+
 ```
 (REWRITE)
-The results from LASSO regression give a model with 9 factors: age, ascites, edema, bili, albumin, copper, alk.phos, ast, protime, and stage. LASSO successfully shrunk 8 factors to zero.
+The results from LASSO regression give a model with 11 factors: age, ascites, edema, bili, albumin, copper, alk.phos, ast, protime, and stage. LASSO successfully shrunk 8 factors to zero.
+
+lambda.min: 11 factors: age, ascites, edema, bili, albumin, copper, alk.phos, ast, protime, and stage
+lambda.1se: 5 factors: edema, bili, albumin, copper, and stage
 
 
 Now, let's input the factors found through LASSO and create the parsimonious model.
 ```{r}
-parsimonious_cox1 <- coxph(Surv(time,status == 2) ~ age  + sex + ascites + edema + bili  + chol +
+parsimonious_cox1 <- coxph(Surv(time, status == 2) ~ age  + sex + ascites + edema + bili + chol +
                          albumin + copper + ast + protime + stage, data = pbc_model1)
 summary(parsimonious_cox1)
+
+parsimonious_cox1se <- coxph(Surv(time, status == 2) ~  edema + bili  +
+                         albumin + copper + stage, data = pbc_model1)
+summary(parsimonious_cox1se)
+
+AIC(parsimonious_cox1)
+AIC(parsimonious_cox1se)
 ```
 
 
@@ -301,17 +313,31 @@ set.seed(42)
 cv.fit2 <- cv.glmnet(x2,y2, family = "cox", type.measure = "C", alpha = 1, nfolds = 10, keep = TRUE)
 print(cv.fit2)
 coef(cv.fit2, s = "lambda.min")
+coef(cv.fit2, s = "lambda.1se")
+
 ```
 
 (REWRITE)
-LASSO regression resulted in 8 non-zero factors: age, ascites, edema, lbili, albumin, lcopper, lprotime, and stage.
+LASSO regression resulted in 10 non-zero factors: age, sex, ascites, edema, lbili, albumin, lcopper, last, lprotime, and stage.
 
 Now, let's input the factors  found through LASSO and create the parsimonious model.
+
+
+lambda.min: 10 factors: age, sex, ascites, edema, lbili, albumin, lcopper, last, lprotime, and stage
+lambda.1se: 8 factors: age, ascites, edema, lbili, albumin, lcopper, lprotime, and stage
 ```{r}
 parsimonious_cox2 <- coxph(Surv(time,status == 2) ~ age + sex + ascites + edema + lbili  
                            + albumin + lcopper + last + lprotime + stage, data = pbc_model2)
 
 summary(parsimonious_cox2)
+
+parsimonious_cox2a <- coxph(Surv(time,status == 2) ~ age  + ascites + edema + lbili  
+                           + albumin + lcopper  + lprotime + stage, data = pbc_model2)
+
+summary(parsimonious_cox2a)
+AIC(parsimonious_cox2)
+AIC(parsimonious_cox2a)
+
 ```
 
 (REWRITE)
@@ -319,25 +345,36 @@ The two approaches, using untransformed and log transformed numerical factors, r
 
 Let's compare AIC's (Akaike Information criterion), BIC's (Bayesian Information criterion), and concorance for the four models. The AIC is an estimation of prediction error and can be used to compare relative quality between models for a given data set. Similarly, BIC is based on the likelihood function and allows us to compare models, but tends to favor models with less parameters becuase it penalizes more than AIC. The model with the lowest AIC and BIC is preferred. Concordance is a popular statistic for Cox models used to measure model discrimination in survival analysis using time data. It's values range from [0,1], and is compared to AUC of the ROC in logistic regression.
 ```{r}
-s1_model <- data.frame("Standard Model, untransformed", AIC(standard_cox1), 
-                       BIC(standard_cox1), 0.849)
-names(s1_model) <- c("Model", "AIC", "BIC", "Concordance")
+s1_model <- data.frame("Standard Model, untransformed", "17", AIC(standard_cox1), 
+                       BIC(standard_cox1), standard_cox1$concordance[6])
+names(s1_model) <- c("Model", "Variables", "AIC", "BIC", "Concordance")
 
-s2_model <- data.frame("Standard Model, transformed", AIC(standard_cox2), 
-                       BIC(standard_cox2), 0.859)
-names(s2_model) <- c("Model", "AIC", "BIC", "Concordance")
+s2_model <- data.frame("Standard Model, transformed", "17", AIC(standard_cox2), 
+                       BIC(standard_cox2), standard_cox2$concordance[6])
+names(s2_model) <- c("Model", "Variables", "AIC", "BIC", "Concordance")
 
-p1_model <- data.frame("Parsimonious Model, untransformed", AIC(parsimonious_cox1), 
-                       BIC(parsimonious_cox1), 0.849)
-names(p1_model) <- c("Model", "AIC", "BIC", "Concordance")
+p1_model <- data.frame("Parsimonious Model, untransformed, lambda min", "11", AIC(parsimonious_cox1), 
+                       BIC(parsimonious_cox1), parsimonious_cox1$concordance[6])
+names(p1_model) <- c("Model", "Variables", "AIC", "BIC", "Concordance")
 
-p2_model <- data.frame("Parsimonious Model, transformed", AIC(parsimonious_cox2), 
-                       BIC(parsimonious_cox2), 0.857)
-names(p2_model) <- c("Model", "AIC", "BIC", "Concordance")
+p1_modela <- data.frame("Parsimonious Model, untransformed, lambda 1se", "5", AIC(parsimonious_cox1se), 
+                       BIC(parsimonious_cox1se), parsimonious_cox1se$concordance[6])
+names(p1_modela) <- c("Model", "Variables", "AIC", "BIC", "Concordance")
 
-model_diagnostics <- rbind(s1_model, p1_model, s2_model, p2_model)
+p2_model <- data.frame("Parsimonious Model, transformed, lambda min", "10", AIC(parsimonious_cox2), 
+                       BIC(parsimonious_cox2), parsimonious_cox2$concordance[6])
+names(p2_model) <- c("Model", "Variables", "AIC", "BIC", "Concordance")
+
+p2_modela <- data.frame("Parsimonious Model, transformed, lambda 1se", "8", AIC(parsimonious_cox2a), 
+                       BIC(parsimonious_cox2a), parsimonious_cox2a$concordance[6])
+names(p2_modela) <- c("Model", "Variables", "AIC", "BIC", "Concordance")
+
+model_diagnostics <- rbind(s1_model, p1_model, p1_modela, s2_model, p2_model, p2_modela)
+rownames(model_diagnostics) <- NULL
 model_diagnostics
 ```
+
+
 
 (REWRITE)
 In the untransformed approach, AIC, BIC, and concordance all decrease from the standard to parsimonious model. This occurs in the transformed approach too. Between the two approaches, the transformed model exhibits the lowest AIC and BIC, while retaining a concordance greater than the standard untransformed model. 
@@ -406,11 +443,16 @@ standard_df1 <- data.frame(standard_cox1_plot$time, standard_cox1_plot$surv, sta
 names(standard_df1) <- c("Time", "Survival", "Model")
 
 parsimonious_cox1_plot <- survfit(parsimonious_cox1)
-pars1 <- rep("Parsimonious Cox, untransformed", length(parsimonious_cox1_plot$time))
+pars1 <- rep("Parsimonious Cox, untransformed, lambda min", length(parsimonious_cox1_plot$time))
 pars_df1 <- data.frame(parsimonious_cox1_plot$time, parsimonious_cox1_plot$surv, pars1)
 names(pars_df1) <- c("Time", "Survival", "Model")
 
-plot_combo_df_1 <- rbind(standard_df1, pars_df1)
+parsimonious_cox1se_plot <- survfit(parsimonious_cox1se)
+pars1a <- rep("Parsimonious Cox, untransformed, lambda 1se", length(parsimonious_cox1se_plot$time))
+pars_df1a <- data.frame(parsimonious_cox1se_plot$time, parsimonious_cox1se_plot$surv, pars1a)
+names(pars_df1a) <- c("Time", "Survival", "Model")
+
+plot_combo_df_1 <- rbind(standard_df1, pars_df1, pars_df1a)
 plot_combo1 <- ggplot(plot_combo_df_1, aes(x = Time, y = Survival, color = Model))
 plot_combo1 + geom_line() + ggtitle("Comparison of Survival Curves for Untransformed Factors Model")
 
@@ -421,17 +463,23 @@ standard_df2 <- data.frame(standard_cox2_plot$time, standard_cox2_plot$surv, sta
 names(standard_df2) <- c("Time", "Survival", "Model")
 
 parsimonious_cox2_plot <- survfit(parsimonious_cox2)
-pars2 <- rep("Parsimonious Cox, transformed", length(parsimonious_cox2_plot$time))
+pars2 <- rep("Parsimonious Cox, transformed, lambda min", length(parsimonious_cox2_plot$time))
 pars_df2 <- data.frame(parsimonious_cox2_plot$time, parsimonious_cox2_plot$surv, pars2)
 names(pars_df2) <- c("Time", "Survival", "Model")
 
 
-plot_combo_df_2 <- rbind(standard_df2, pars_df2)
+parsimonious_cox2se_plot <- survfit(parsimonious_cox2a)
+pars2a <- rep("Parsimonious Cox, transformed, lambda 1se", length(parsimonious_cox2se_plot$time))
+pars_df2a <- data.frame(parsimonious_cox2se_plot$time, parsimonious_cox2se_plot$surv, pars2a)
+names(pars_df2a) <- c("Time", "Survival", "Model")
+
+
+plot_combo_df_2 <- rbind(standard_df2, pars_df2, pars_df2a)
 plot_combo2 <- ggplot(plot_combo_df_2, aes(x = Time, y = Survival, color = Model))
 plot_combo2 + geom_line() + ggtitle("Comparison of Survival Curves for Transformed Factors Model")
 
 
-plot_combo_df <- rbind(standard_df1, standard_df2, pars_df1, pars_df2)
+plot_combo_df <- rbind(standard_df1, standard_df2, pars_df1, pars_df2, pars_df1a, pars_df2a)
 
 plot_combo <- ggplot(plot_combo_df, aes(x = Time, y = Survival, color = Model))
 plot_combo + geom_line() + ggtitle("Comparison of Survival Curves for all Models")
@@ -441,9 +489,25 @@ plot_combo + geom_line() + ggtitle("Comparison of Survival Curves for all Models
 The objective of this project was to analyze which baseline factors predict survival. Along the way, two parsimonious models were created using LASSO regression, providing a simple, yet powerful model going from 17 factors to 8. It is reasonable to believe the full, standard model is best to use when predicting survival and that information can be lost when you drop predictors. However, the results of the analyses presented here shows otherwise. The three above plots of survival curves show nearly equal curves for each approach. Furthermore, a Likelihood Ratio Test can be applied to our parsimonious models to assess their fit compared to the standard models.
 ```{r}
 anova(standard_cox1, parsimonious_cox1, test = "LRT")
+anova(standard_cox1, parsimonious_cox1se, test = "LRT")
 anova(standard_cox2, parsimonious_cox2, test = "LRT")
+anova(standard_cox2, parsimonious_cox2a, test = "LRT")
 anova(parsimonious_cox1, parsimonious_cox2, test = "LRT")
+anova(parsimonious_cox1se, parsimonious_cox2a, test = "LRT")
+
 ```
+```{r}
+anova(standard_cox1, parsimonious_cox1, test = "aic1")
+anova(standard_cox1, parsimonious_cox1se, test = "aic1")
+anova(standard_cox2, parsimonious_cox2, test = "aic1")
+anova(standard_cox2, parsimonious_cox2a, test = "aic1")
+anova(parsimonious_cox1, parsimonious_cox2, test = "aic1")
+anova(parsimonious_cox1se, parsimonious_cox2a, test = "aic1")
+
+```
+
+[REWRITE]
+
 The LRT test provides evidence that the standard and parsimonious models in the first approach, using untransformed terms, are not significantly different. They fit the data equally well even though 8 baseline factors were removed. A similar result is found for the models in the second approach using log transformed terms; the standard and parsimonious fit the data equally well. Nine baseline factors were removed here and it is significant that enough information was retained with the parsimonious model. The plots of survival curves adequately displays this result. Furthermore, it is important to note that the LRT test between the parsimonious models showed that the model with log transformed terms fit the data significantly better than the untransformed terms model, providing more evidence for my claim in part 2.
 
 
