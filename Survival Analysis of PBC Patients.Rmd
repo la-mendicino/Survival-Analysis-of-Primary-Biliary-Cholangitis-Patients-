@@ -78,7 +78,7 @@ print(CreateTableOne(data = pbc2), nonnormal = c("Serum Bilirubin mg/dl",
                               "Triglicerides mg/dl", "Platelet Count", "Blood Clotting Time in seconds"))
 ```
 
-```{r}
+```{r, message = FALSE}
 pbc2 %>% select(-time) %>% 
   tbl_summary(statistic = list(all_continuous() ~ "{median} ({p25}, {p75})",
                      all_categorical() ~ "{n} ({p}%)"),
@@ -256,11 +256,9 @@ coef(cv.fit1, s = "lambda.min")
 coef(cv.fit1, s = "lambda.1se")
 
 ```
-(REWRITE)
-The results from LASSO regression give a model with 11 factors: age, ascites, edema, bili, albumin, copper, alk.phos, ast, protime, and stage. LASSO successfully shrunk 8 factors to zero.
 
-lambda.min: 11 factors: age, ascites, edema, bili, albumin, copper, alk.phos, ast, protime, and stage
-lambda.1se: 5 factors: edema, bili, albumin, copper, and stage
+The results from LASSO regression give a model with 11 factors using lambda min (age, ascites, edema, bili, albumin, copper, alk.phos, ast, protime, and stage) and 5 factors using lambda 1se (edema, bili, albumin, copper, and stage). 
+
 
 
 Now, let's input the factors found through LASSO and create the parsimonious model.
@@ -317,14 +315,10 @@ coef(cv.fit2, s = "lambda.1se")
 
 ```
 
-(REWRITE)
-LASSO regression resulted in 10 non-zero factors: age, sex, ascites, edema, lbili, albumin, lcopper, last, lprotime, and stage.
+LASSO regression resulted in 10 non-zero factors using lambda min (age, sex, ascites, edema, lbili, albumin, lcopper, last, lprotime, and stage) and 8 non-zero factors using lambda 1se (age, ascites, edema, lbili, albumin, lcopper, lprotime, and stage).
 
-Now, let's input the factors  found through LASSO and create the parsimonious model.
+Now, let's input the factors found through LASSO and create the parsimonious model.
 
-
-lambda.min: 10 factors: age, sex, ascites, edema, lbili, albumin, lcopper, last, lprotime, and stage
-lambda.1se: 8 factors: age, ascites, edema, lbili, albumin, lcopper, lprotime, and stage
 ```{r}
 parsimonious_cox2 <- coxph(Surv(time,status == 2) ~ age + sex + ascites + edema + lbili  
                            + albumin + lcopper + last + lprotime + stage, data = pbc_model2)
@@ -340,32 +334,32 @@ AIC(parsimonious_cox2a)
 
 ```
 
-(REWRITE)
-The two approaches, using untransformed and log transformed numerical factors, resulted in two different parsimonious sets of variables. The first set included one more variable (ast) and shared the rest of the factors with the second set. 
+The two approaches, using untransformed and log transformed numerical factors, resulted in four different parsimonious sets of variables. The untrasnformed data resulted in 11 and 5 non-zero factors and the transformed resulted in 10 and 8 non-zero factors; lambda 1se resulted in fewer non-zero factors in both approaches.
 
 Let's compare AIC's (Akaike Information criterion), BIC's (Bayesian Information criterion), and concorance for the four models. The AIC is an estimation of prediction error and can be used to compare relative quality between models for a given data set. Similarly, BIC is based on the likelihood function and allows us to compare models, but tends to favor models with less parameters becuase it penalizes more than AIC. The model with the lowest AIC and BIC is preferred. Concordance is a popular statistic for Cox models used to measure model discrimination in survival analysis using time data. It's values range from [0,1], and is compared to AUC of the ROC in logistic regression.
+
 ```{r}
-s1_model <- data.frame("Standard Model, untransformed", "17", AIC(standard_cox1), 
+s1_model <- data.frame("Standard Model, Untransformed", "17", AIC(standard_cox1), 
                        BIC(standard_cox1), standard_cox1$concordance[6])
 names(s1_model) <- c("Model", "Variables", "AIC", "BIC", "Concordance")
 
-s2_model <- data.frame("Standard Model, transformed", "17", AIC(standard_cox2), 
+s2_model <- data.frame("Standard Model, Transformed", "17", AIC(standard_cox2), 
                        BIC(standard_cox2), standard_cox2$concordance[6])
 names(s2_model) <- c("Model", "Variables", "AIC", "BIC", "Concordance")
 
-p1_model <- data.frame("Parsimonious Model, untransformed, lambda min", "11", AIC(parsimonious_cox1), 
+p1_model <- data.frame("Parsimonious Model, Untransformed, lambda min", "11", AIC(parsimonious_cox1), 
                        BIC(parsimonious_cox1), parsimonious_cox1$concordance[6])
 names(p1_model) <- c("Model", "Variables", "AIC", "BIC", "Concordance")
 
-p1_modela <- data.frame("Parsimonious Model, untransformed, lambda 1se", "5", AIC(parsimonious_cox1se), 
+p1_modela <- data.frame("Parsimonious Model, Untransformed, lambda 1se", "5", AIC(parsimonious_cox1se), 
                        BIC(parsimonious_cox1se), parsimonious_cox1se$concordance[6])
 names(p1_modela) <- c("Model", "Variables", "AIC", "BIC", "Concordance")
 
-p2_model <- data.frame("Parsimonious Model, transformed, lambda min", "10", AIC(parsimonious_cox2), 
+p2_model <- data.frame("Parsimonious Model, Transformed, lambda min", "10", AIC(parsimonious_cox2), 
                        BIC(parsimonious_cox2), parsimonious_cox2$concordance[6])
 names(p2_model) <- c("Model", "Variables", "AIC", "BIC", "Concordance")
 
-p2_modela <- data.frame("Parsimonious Model, transformed, lambda 1se", "8", AIC(parsimonious_cox2a), 
+p2_modela <- data.frame("Parsimonious Model, Transformed, lambda 1se", "8", AIC(parsimonious_cox2a), 
                        BIC(parsimonious_cox2a), parsimonious_cox2a$concordance[6])
 names(p2_modela) <- c("Model", "Variables", "AIC", "BIC", "Concordance")
 
@@ -377,7 +371,7 @@ model_diagnostics
 
 
 (REWRITE)
-In the untransformed approach, AIC, BIC, and concordance all decrease from the standard to parsimonious model. This occurs in the transformed approach too. Between the two approaches, the transformed model exhibits the lowest AIC and BIC, while retaining a concordance greater than the standard untransformed model. 
+In the untransformed approach, AIC, BIC, and concordance all decrease from the standard to parsimonious model, with the 11 factor model resulting in the best model diagnostics. Similarly in the transformed approach, all diagnostics improve in the parsimonious model with the 8 factor model performing best. Between the two approaches, the transformed model exhibits the lowest AIC and BIC, while retaining a concordance greater than the standard untransformed model. 
 
 A parsimonious model is a simple model with great explanatory predictive power. It is less likely to overfit the data set because it has as few predictors as possible. It can be seen from the above analyses that two parsimonious models were produced to predict survival for patients in the PBC clinical trial. I believe the best model to predict survival is the model using the set of factors found using LASSO in the log transform approach, resulting in eight baseline factors (age, ascites, edema, lbili, albumin, lcopper, lprotime, stage) predicting survival. This proposition is justified by AIC, BIC, and concordance statistics. This parsimonious model retains significant information after the removal of 9 baseline factors.
 
@@ -417,6 +411,7 @@ shape_test_cox_full_pspline <- coxph(Surv(time, status == 2) ~  age + pspline(bi
                           
 (shape_test_cox_full_pspline)
 ```
+
 There are significant nonlinear terms for bili, copper, and alk.phos. 
 
 Let's add the splines to the log transformed terms to see if nonlinear terms become insignificant for bili, copper, and alk.phos
@@ -428,10 +423,11 @@ shape_test_cox_full_log_pspline <- coxph(Surv(time, status == 2) ~  age +  pspli
                           
 (shape_test_cox_full_log_pspline)
 ```
+
 There are no significant nonlinear terms for bili, copper, or alk.phos. It seems the log transformation for these three variables is justified.
 The above visual and quantitative analysis of nonlinearity did not result in any significant nonlinear associations with the time to event outcome.
 
-## 4.) Create a figure that you feel adequately displays results of the analysis
+## 4.) Visualization of Survival Curves and Diagnostic Characteristics
 
 
 Compare survival curves of the models:
@@ -490,12 +486,24 @@ The objective of this project was to analyze which baseline factors predict surv
 ```{r}
 anova(standard_cox1, parsimonious_cox1, test = "LRT")
 anova(standard_cox1, parsimonious_cox1se, test = "LRT")
+anova(parsimonious_cox1, parsimonious_cox1se, test = "LRT")
+```
+
+```{r}
 anova(standard_cox2, parsimonious_cox2, test = "LRT")
 anova(standard_cox2, parsimonious_cox2a, test = "LRT")
+anova(parsimonious_cox2, parsimonious_cox2a, test = "LRT")
+```
+
+```{r}
 anova(parsimonious_cox1, parsimonious_cox2, test = "LRT")
+anova(parsimonious_cox1, parsimonious_cox2a, test = "LRT")
+
+anova(parsimonious_cox1se, parsimonious_cox2, test = "LRT")
 anova(parsimonious_cox1se, parsimonious_cox2a, test = "LRT")
 
 ```
+
 ```{r}
 anova(standard_cox1, parsimonious_cox1, test = "aic1")
 anova(standard_cox1, parsimonious_cox1se, test = "aic1")
@@ -508,12 +516,18 @@ anova(parsimonious_cox1se, parsimonious_cox2a, test = "aic1")
 
 [REWRITE]
 
-The LRT test provides evidence that the standard and parsimonious models in the first approach, using untransformed terms, are not significantly different. They fit the data equally well even though 8 baseline factors were removed. A similar result is found for the models in the second approach using log transformed terms; the standard and parsimonious fit the data equally well. Nine baseline factors were removed here and it is significant that enough information was retained with the parsimonious model. The plots of survival curves adequately displays this result. Furthermore, it is important to note that the LRT test between the parsimonious models showed that the model with log transformed terms fit the data significantly better than the untransformed terms model, providing more evidence for my claim in part 2.
+The LRT test provides evidence that the standard and 11 factor parsimonious model in the first approach, using untransformed terms, are not significantly different. They fit the data equally well even though 8 baseline factors were removed. The 5 factor parsimonious model does not fit the data significantly better than both the standard and 11 factor parsimonious model.
+
+In the transformed approach, all 3 models fit the data equally well. A 10 factor and 8 factor parsimonious model did not lose a significant amount of information with the goal of model parsimony.
+
+The plots of survival curves adequately displays this result. Furthermore, it is important to note that the LRT test between the parsimonious models in each approach showed that the model with log transformed terms fit the data significantly better than the untransformed terms model, providing more evidence for my claim in part 2.
 
 
 ## Conclusions
 
-The PBC data set provided survival data on 17 baseline factors for patients in a Mayo Clinic trial. A Cox regression model was employed on 276 patients with complete data to explore which baseline factors best predict survival. Two sets of data were used in the modeling, the original data set and 8 log transformations on numerical variables exhibiting nonnormal distributions. The two approaches resulted in two different parsimonious models with 9 baseline factors in the original data set and 8 in the transformed data set. The parsimonious model with 8 baseline factors was the best model to predict survival. An assessment of nonlinear associations between the variables and the time to event outcome revealed little evidence of nonlinearity and confirmed the need for log transformations. Finally, a comparison of the survival curves of our four models showed near equal fits in the two approaches, revealing that the parsimonious models were able to fit the data equally as well as the standard models. The parsimonious model with log transformed terms fit the data significantly better than the parsimonious model with the original data set. The results of this analysis reveal the benefits of model parsimony in the prediction of survival for patients in the PBC clinical trial. Removal of baseline factors with poor predictive ability can allow clinicians to have better prognostic abilities by focusing on a smaller set factors of importance to survival. 
+The PBC data set provided survival data on 17 baseline factors for patients in a Mayo Clinic trial. A Cox regression model was employed on 276 patients with complete data to explore which baseline factors best predict survival. Two sets of data were used in the modeling, the original data set and 8 log transformations on numerical variables exhibiting nonnormal distributions. The two approaches resulted in four different parsimonious models.
+
+The parsimonious model with 8 baseline factors and necessary log transformed terms was the best model to predict survival. An assessment of nonlinear associations between the variables and the time to event outcome revealed little evidence of nonlinearity and confirmed the need for log transformations. Finally, a comparison of the survival curves of our four models showed near equal fits in the two approaches, revealing that the parsimonious models were able to fit the data equally as well as the standard models. The parsimonious model with log transformed terms fit the data significantly better than the parsimonious model with the original data set. The results of this analysis reveal the benefits of model parsimony in the prediction of survival for patients in the PBC clinical trial. Removal of baseline factors with poor predictive ability can allow clinicians to have better prognostic abilities by focusing on a smaller set factors of importance to survival. 
 
 
 

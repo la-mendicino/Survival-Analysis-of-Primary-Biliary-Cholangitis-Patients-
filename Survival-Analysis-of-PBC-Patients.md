@@ -134,12 +134,12 @@ pbc2 %>% select(-time) %>%
                     digits = all_continuous() ~ 2,)
 ```
 
-<div id="uvfileqmbk" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="icvigbmuaa" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
 
-#uvfileqmbk .gt_table {
+#icvigbmuaa .gt_table {
   display: table;
   border-collapse: collapse;
   margin-left: auto;
@@ -164,7 +164,7 @@ pbc2 %>% select(-time) %>%
   border-left-color: #D3D3D3;
 }
 
-#uvfileqmbk .gt_heading {
+#icvigbmuaa .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -176,7 +176,7 @@ pbc2 %>% select(-time) %>%
   border-right-color: #D3D3D3;
 }
 
-#uvfileqmbk .gt_title {
+#icvigbmuaa .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -186,7 +186,7 @@ pbc2 %>% select(-time) %>%
   border-bottom-width: 0;
 }
 
-#uvfileqmbk .gt_subtitle {
+#icvigbmuaa .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -196,13 +196,13 @@ pbc2 %>% select(-time) %>%
   border-top-width: 0;
 }
 
-#uvfileqmbk .gt_bottom_border {
+#icvigbmuaa .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#uvfileqmbk .gt_col_headings {
+#icvigbmuaa .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -217,7 +217,7 @@ pbc2 %>% select(-time) %>%
   border-right-color: #D3D3D3;
 }
 
-#uvfileqmbk .gt_col_heading {
+#icvigbmuaa .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -237,7 +237,7 @@ pbc2 %>% select(-time) %>%
   overflow-x: hidden;
 }
 
-#uvfileqmbk .gt_column_spanner_outer {
+#icvigbmuaa .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -249,15 +249,15 @@ pbc2 %>% select(-time) %>%
   padding-right: 4px;
 }
 
-#uvfileqmbk .gt_column_spanner_outer:first-child {
+#icvigbmuaa .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#uvfileqmbk .gt_column_spanner_outer:last-child {
+#icvigbmuaa .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#uvfileqmbk .gt_column_spanner {
+#icvigbmuaa .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -269,7 +269,7 @@ pbc2 %>% select(-time) %>%
   width: 100%;
 }
 
-#uvfileqmbk .gt_group_heading {
+#icvigbmuaa .gt_group_heading {
   padding: 8px;
   color: #333333;
   background-color: #FFFFFF;
@@ -291,7 +291,7 @@ pbc2 %>% select(-time) %>%
   vertical-align: middle;
 }
 
-#uvfileqmbk .gt_empty_group_heading {
+#icvigbmuaa .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -306,15 +306,15 @@ pbc2 %>% select(-time) %>%
   vertical-align: middle;
 }
 
-#uvfileqmbk .gt_from_md > :first-child {
+#icvigbmuaa .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#uvfileqmbk .gt_from_md > :last-child {
+#icvigbmuaa .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#uvfileqmbk .gt_row {
+#icvigbmuaa .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -333,7 +333,7 @@ pbc2 %>% select(-time) %>%
   overflow-x: hidden;
 }
 
-#uvfileqmbk .gt_stub {
+#icvigbmuaa .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -345,7 +345,7 @@ pbc2 %>% select(-time) %>%
   padding-left: 12px;
 }
 
-#uvfileqmbk .gt_summary_row {
+#icvigbmuaa .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -355,7 +355,7 @@ pbc2 %>% select(-time) %>%
   padding-right: 5px;
 }
 
-#uvfileqmbk .gt_first_summary_row {
+#icvigbmuaa .gt_first_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -365,7 +365,7 @@ pbc2 %>% select(-time) %>%
   border-top-color: #D3D3D3;
 }
 
-#uvfileqmbk .gt_grand_summary_row {
+#icvigbmuaa .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -375,7 +375,7 @@ pbc2 %>% select(-time) %>%
   padding-right: 5px;
 }
 
-#uvfileqmbk .gt_first_grand_summary_row {
+#icvigbmuaa .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -385,11 +385,11 @@ pbc2 %>% select(-time) %>%
   border-top-color: #D3D3D3;
 }
 
-#uvfileqmbk .gt_striped {
+#icvigbmuaa .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#uvfileqmbk .gt_table_body {
+#icvigbmuaa .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -398,7 +398,7 @@ pbc2 %>% select(-time) %>%
   border-bottom-color: #D3D3D3;
 }
 
-#uvfileqmbk .gt_footnotes {
+#icvigbmuaa .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -412,13 +412,13 @@ pbc2 %>% select(-time) %>%
   border-right-color: #D3D3D3;
 }
 
-#uvfileqmbk .gt_footnote {
+#icvigbmuaa .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding: 4px;
 }
 
-#uvfileqmbk .gt_sourcenotes {
+#icvigbmuaa .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -432,41 +432,41 @@ pbc2 %>% select(-time) %>%
   border-right-color: #D3D3D3;
 }
 
-#uvfileqmbk .gt_sourcenote {
+#icvigbmuaa .gt_sourcenote {
   font-size: 90%;
   padding: 4px;
 }
 
-#uvfileqmbk .gt_left {
+#icvigbmuaa .gt_left {
   text-align: left;
 }
 
-#uvfileqmbk .gt_center {
+#icvigbmuaa .gt_center {
   text-align: center;
 }
 
-#uvfileqmbk .gt_right {
+#icvigbmuaa .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#uvfileqmbk .gt_font_normal {
+#icvigbmuaa .gt_font_normal {
   font-weight: normal;
 }
 
-#uvfileqmbk .gt_font_bold {
+#icvigbmuaa .gt_font_bold {
   font-weight: bold;
 }
 
-#uvfileqmbk .gt_font_italic {
+#icvigbmuaa .gt_font_italic {
   font-style: italic;
 }
 
-#uvfileqmbk .gt_super {
+#icvigbmuaa .gt_super {
   font-size: 65%;
 }
 
-#uvfileqmbk .gt_footnote_marks {
+#icvigbmuaa .gt_footnote_marks {
   font-style: italic;
   font-weight: normal;
   font-size: 65%;
@@ -947,13 +947,10 @@ coef(cv.fit1, s = "lambda.1se")
     ## protime      .          
     ## stage        0.047666343
 
-(REWRITE) The results from LASSO regression give a model with 11
-factors: age, ascites, edema, bili, albumin, copper, alk.phos, ast,
-protime, and stage. LASSO successfully shrunk 8 factors to zero.
-
-lambda.min: 11 factors: age, ascites, edema, bili, albumin, copper,
-alk.phos, ast, protime, and stage lambda.1se: 5 factors: edema, bili,
-albumin, copper, and stage
+The results from LASSO regression give a model with 11 factors using
+lambda min (age, ascites, edema, bili, albumin, copper, alk.phos, ast,
+protime, and stage) and 5 factors using lambda 1se (edema, bili,
+albumin, copper, and stage).
 
 Now, let’s input the factors found through LASSO and create the
 parsimonious model.
@@ -1223,15 +1220,13 @@ coef(cv.fit2, s = "lambda.1se")
     ## lprotime     0.619133918
     ## stage        0.086598214
 
-(REWRITE) LASSO regression resulted in 10 non-zero factors: age, sex,
-ascites, edema, lbili, albumin, lcopper, last, lprotime, and stage.
+LASSO regression resulted in 10 non-zero factors using lambda min (age,
+sex, ascites, edema, lbili, albumin, lcopper, last, lprotime, and stage)
+and 8 non-zero factors using lambda 1se (age, ascites, edema, lbili,
+albumin, lcopper, lprotime, and stage).
 
 Now, let’s input the factors found through LASSO and create the
 parsimonious model.
-
-lambda.min: 10 factors: age, sex, ascites, edema, lbili, albumin,
-lcopper, last, lprotime, and stage lambda.1se: 8 factors: age, ascites,
-edema, lbili, albumin, lcopper, lprotime, and stage
 
 ``` r
 parsimonious_cox2 <- coxph(Surv(time,status == 2) ~ age + sex + ascites + edema + lbili  
@@ -1330,10 +1325,11 @@ AIC(parsimonious_cox2a)
 
     ## [1] 939.493
 
-(REWRITE) The two approaches, using untransformed and log transformed
-numerical factors, resulted in two different parsimonious sets of
-variables. The first set included one more variable (ast) and shared the
-rest of the factors with the second set.
+The two approaches, using untransformed and log transformed numerical
+factors, resulted in four different parsimonious sets of variables. The
+untrasnformed data resulted in 11 and 5 non-zero factors and the
+transformed resulted in 10 and 8 non-zero factors; lambda 1se resulted
+in fewer non-zero factors in both approaches.
 
 Let’s compare AIC’s (Akaike Information criterion), BIC’s (Bayesian
 Information criterion), and concorance for the four models. The AIC is
@@ -1347,27 +1343,27 @@ survival analysis using time data. It’s values range from \[0,1\], and
 is compared to AUC of the ROC in logistic regression.
 
 ``` r
-s1_model <- data.frame("Standard Model, untransformed", "17", AIC(standard_cox1), 
+s1_model <- data.frame("Standard Model, Untransformed", "17", AIC(standard_cox1), 
                        BIC(standard_cox1), standard_cox1$concordance[6])
 names(s1_model) <- c("Model", "Variables", "AIC", "BIC", "Concordance")
 
-s2_model <- data.frame("Standard Model, transformed", "17", AIC(standard_cox2), 
+s2_model <- data.frame("Standard Model, Transformed", "17", AIC(standard_cox2), 
                        BIC(standard_cox2), standard_cox2$concordance[6])
 names(s2_model) <- c("Model", "Variables", "AIC", "BIC", "Concordance")
 
-p1_model <- data.frame("Parsimonious Model, untransformed, lambda min", "11", AIC(parsimonious_cox1), 
+p1_model <- data.frame("Parsimonious Model, Untransformed, lambda min", "11", AIC(parsimonious_cox1), 
                        BIC(parsimonious_cox1), parsimonious_cox1$concordance[6])
 names(p1_model) <- c("Model", "Variables", "AIC", "BIC", "Concordance")
 
-p1_modela <- data.frame("Parsimonious Model, untransformed, lambda 1se", "5", AIC(parsimonious_cox1se), 
+p1_modela <- data.frame("Parsimonious Model, Untransformed, lambda 1se", "5", AIC(parsimonious_cox1se), 
                        BIC(parsimonious_cox1se), parsimonious_cox1se$concordance[6])
 names(p1_modela) <- c("Model", "Variables", "AIC", "BIC", "Concordance")
 
-p2_model <- data.frame("Parsimonious Model, transformed, lambda min", "10", AIC(parsimonious_cox2), 
+p2_model <- data.frame("Parsimonious Model, Transformed, lambda min", "10", AIC(parsimonious_cox2), 
                        BIC(parsimonious_cox2), parsimonious_cox2$concordance[6])
 names(p2_model) <- c("Model", "Variables", "AIC", "BIC", "Concordance")
 
-p2_modela <- data.frame("Parsimonious Model, transformed, lambda 1se", "8", AIC(parsimonious_cox2a), 
+p2_modela <- data.frame("Parsimonious Model, Transformed, lambda 1se", "8", AIC(parsimonious_cox2a), 
                        BIC(parsimonious_cox2a), parsimonious_cox2a$concordance[6])
 names(p2_modela) <- c("Model", "Variables", "AIC", "BIC", "Concordance")
 
@@ -1377,12 +1373,12 @@ model_diagnostics
 ```
 
     ##                                           Model Variables      AIC       BIC
-    ## 1                 Standard Model, untransformed        17 966.6642 1012.7262
-    ## 2 Parsimonious Model, untransformed, lambda min        11 955.8529  985.6577
-    ## 3 Parsimonious Model, untransformed, lambda 1se         5 964.0500  977.5976
-    ## 4                   Standard Model, transformed        17 954.1704 1000.2324
-    ## 5   Parsimonious Model, transformed, lambda min        10 941.3521  968.4474
-    ## 6   Parsimonious Model, transformed, lambda 1se         8 939.4930  961.1693
+    ## 1                 Standard Model, Untransformed        17 966.6642 1012.7262
+    ## 2 Parsimonious Model, Untransformed, lambda min        11 955.8529  985.6577
+    ## 3 Parsimonious Model, Untransformed, lambda 1se         5 964.0500  977.5976
+    ## 4                   Standard Model, Transformed        17 954.1704 1000.2324
+    ## 5   Parsimonious Model, Transformed, lambda min        10 941.3521  968.4474
+    ## 6   Parsimonious Model, Transformed, lambda 1se         8 939.4930  961.1693
     ##   Concordance
     ## 1   0.8485859
     ## 2   0.8490026
@@ -1392,10 +1388,12 @@ model_diagnostics
     ## 6   0.8541591
 
 (REWRITE) In the untransformed approach, AIC, BIC, and concordance all
-decrease from the standard to parsimonious model. This occurs in the
-transformed approach too. Between the two approaches, the transformed
-model exhibits the lowest AIC and BIC, while retaining a concordance
-greater than the standard untransformed model.
+decrease from the standard to parsimonious model, with the 11 factor
+model resulting in the best model diagnostics. Similarly in the
+transformed approach, all diagnostics improve in the parsimonious model
+with the 8 factor model performing best. Between the two approaches, the
+transformed model exhibits the lowest AIC and BIC, while retaining a
+concordance greater than the standard untransformed model.
 
 A parsimonious model is a simple model with great explanatory predictive
 power. It is less likely to overfit the data set because it has as few
@@ -1581,7 +1579,7 @@ The above visual and quantitative analysis of nonlinearity did not
 result in any significant nonlinear associations with the time to event
 outcome.
 
-## 4.) Create a figure that you feel adequately displays results of the analysis
+## 4.) Visualization of Survival Curves and Diagnostic Characteristics
 
 Compare survival curves of the models:
 
@@ -1680,6 +1678,20 @@ anova(standard_cox1, parsimonious_cox1se, test = "LRT")
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ``` r
+anova(parsimonious_cox1, parsimonious_cox1se, test = "LRT")
+```
+
+    ## Analysis of Deviance Table
+    ##  Cox model: response is  Surv(time, status == 2)
+    ##  Model 1: ~ age + sex + ascites + edema + bili + chol + albumin + copper + ast + protime + stage
+    ##  Model 2: ~ edema + bili + albumin + copper + stage
+    ##    loglik  Chisq Df P(>|Chi|)   
+    ## 1 -466.93                       
+    ## 2 -477.02 20.197  6  0.002554 **
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
 anova(standard_cox2, parsimonious_cox2, test = "LRT")
 ```
 
@@ -1704,6 +1716,18 @@ anova(standard_cox2, parsimonious_cox2a, test = "LRT")
     ## 2 -461.75 3.3226  9    0.9501
 
 ``` r
+anova(parsimonious_cox2, parsimonious_cox2a, test = "LRT")
+```
+
+    ## Analysis of Deviance Table
+    ##  Cox model: response is  Surv(time, status == 2)
+    ##  Model 1: ~ age + sex + ascites + edema + lbili + albumin + lcopper + last + lprotime + stage
+    ##  Model 2: ~ age + ascites + edema + lbili + albumin + lcopper + lprotime + stage
+    ##    loglik  Chisq Df P(>|Chi|)
+    ## 1 -460.68                    
+    ## 2 -461.75 2.1409  2    0.3429
+
+``` r
 anova(parsimonious_cox1, parsimonious_cox2, test = "LRT")
 ```
 
@@ -1714,6 +1738,34 @@ anova(parsimonious_cox1, parsimonious_cox2, test = "LRT")
     ##    loglik  Chisq Df P(>|Chi|)    
     ## 1 -466.93                        
     ## 2 -460.68 12.501  1 0.0004068 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
+anova(parsimonious_cox1, parsimonious_cox2a, test = "LRT")
+```
+
+    ## Analysis of Deviance Table
+    ##  Cox model: response is  Surv(time, status == 2)
+    ##  Model 1: ~ age + sex + ascites + edema + bili + chol + albumin + copper + ast + protime + stage
+    ##  Model 2: ~ age + ascites + edema + lbili + albumin + lcopper + lprotime + stage
+    ##    loglik Chisq Df P(>|Chi|)  
+    ## 1 -466.93                     
+    ## 2 -461.75 10.36  3   0.01574 *
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
+anova(parsimonious_cox1se, parsimonious_cox2, test = "LRT")
+```
+
+    ## Analysis of Deviance Table
+    ##  Cox model: response is  Surv(time, status == 2)
+    ##  Model 1: ~ edema + bili + albumin + copper + stage
+    ##  Model 2: ~ age + sex + ascites + edema + lbili + albumin + lcopper + last + lprotime + stage
+    ##    loglik  Chisq Df   P(>|Chi|)    
+    ## 1 -477.02                          
+    ## 2 -460.68 32.698  5 0.000004321 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -1811,18 +1863,23 @@ anova(parsimonious_cox1se, parsimonious_cox2a, test = "aic1")
 
 \[REWRITE\]
 
-The LRT test provides evidence that the standard and parsimonious models
-in the first approach, using untransformed terms, are not significantly
-different. They fit the data equally well even though 8 baseline factors
-were removed. A similar result is found for the models in the second
-approach using log transformed terms; the standard and parsimonious fit
-the data equally well. Nine baseline factors were removed here and it is
-significant that enough information was retained with the parsimonious
-model. The plots of survival curves adequately displays this result.
+The LRT test provides evidence that the standard and 11 factor
+parsimonious model in the first approach, using untransformed terms, are
+not significantly different. They fit the data equally well even though
+8 baseline factors were removed. The 5 factor parsimonious model does
+not fit the data significantly better than both the standard and 11
+factor parsimonious model.
+
+In the transformed approach, all 3 models fit the data equally well. A
+10 factor and 8 factor parsimonious model did not lose a significant
+amount of information with the goal of model parsimony.
+
+The plots of survival curves adequately displays this result.
 Furthermore, it is important to note that the LRT test between the
-parsimonious models showed that the model with log transformed terms fit
-the data significantly better than the untransformed terms model,
-providing more evidence for my claim in part 2.
+parsimonious models in each approach showed that the model with log
+transformed terms fit the data significantly better than the
+untransformed terms model, providing more evidence for my claim in part
+2.
 
 ## Conclusions
 
@@ -1831,10 +1888,11 @@ patients in a Mayo Clinic trial. A Cox regression model was employed on
 276 patients with complete data to explore which baseline factors best
 predict survival. Two sets of data were used in the modeling, the
 original data set and 8 log transformations on numerical variables
-exhibiting nonnormal distributions. The two approaches resulted in two
-different parsimonious models with 9 baseline factors in the original
-data set and 8 in the transformed data set. The parsimonious model with
-8 baseline factors was the best model to predict survival. An assessment
+exhibiting nonnormal distributions. The two approaches resulted in four
+different parsimonious models.
+
+The parsimonious model with 8 baseline factors and necessary log
+transformed terms was the best model to predict survival. An assessment
 of nonlinear associations between the variables and the time to event
 outcome revealed little evidence of nonlinearity and confirmed the need
 for log transformations. Finally, a comparison of the survival curves of
